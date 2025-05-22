@@ -1,0 +1,23 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niouf07/NioufBot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/niouf07/NioufBot/issues"
+  },
+  "homepage": "https://github.com/niouf07/NioufBot#readme",
+  "dependencies": {
+    "discord.js": "^14.19.3"
+  }
+}
