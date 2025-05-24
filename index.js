@@ -5,6 +5,22 @@ const { token } = require("./config.json");
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+const loadersPath = path.join(__dirname, "loaders");
+if (fs.existsSync(loadersPath)) {
+  const loaderFiles = fs
+    .readdirSync(loadersPath)
+    .filter((file) => file.endsWith(".js"));
+  for (const file of loaderFiles) {
+    const loaderPath = path.join(loadersPath, file);
+    const loader = require(loaderPath);
+    if (typeof loader === "function") {
+      loader(client);
+    } else if (loader && typeof loader.load === "function") {
+      loader.load(client);
+    }
+  }
+}
+
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
