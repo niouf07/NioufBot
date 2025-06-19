@@ -3,7 +3,9 @@ const { SlashCommandBuilder } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("rank")
-    .setDescription("Check your current level, experience points, and server leaderboard.")
+    .setDescription(
+      "Check your current level, experience points, and server leaderboard."
+    )
     .addUserOption((option) =>
       option.setName("user").setDescription("The user to check the rank of")
     ),
@@ -16,12 +18,10 @@ module.exports = {
       });
     }
 
-    // Use the selected user if provided, otherwise default to the command user
     const userOption = interaction.options.getUser("user");
     const userID = userOption ? userOption.id : interaction.user.id;
     const guildID = interaction.guild.id;
 
-    // Get leaderboard for this guild
     db.query(
       `SELECT userID, level, experience FROM level WHERE guildID = ? ORDER BY level DESC, experience DESC`,
       [guildID],
@@ -41,7 +41,6 @@ module.exports = {
           });
         }
 
-        // Find the requested user's rank
         let classement = "";
         let userRank = null;
         results.forEach((row, i) => {
@@ -59,8 +58,7 @@ module.exports = {
           if (row.userID === userID) userRank = place;
         });
 
-        // Get the user's own stats
-        const userRow = results.find(r => r.userID === userID);
+        const userRow = results.find((r) => r.userID === userID);
         let userStats = "";
         if (userRow) {
           userStats = `Your rank: **${userRank}** / ${results.length}\nLevel: **${userRow.level}**\nXP: **${userRow.experience}**`;
@@ -70,7 +68,6 @@ module.exports = {
 
         interaction.reply({
           content: `**Server Leaderboard:**\n${classement}\n${userStats}`,
-          // Remove flags: 64 to make the message public
         });
       }
     );
