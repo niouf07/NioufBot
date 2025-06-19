@@ -14,10 +14,26 @@ module.exports = {
       .setTitle("Command Used")
       .setColor(0x5865f2)
       .addFields(
-        { name: "User", value: `<@${interaction.user.id}> (${interaction.user.tag})`, inline: false },
-        { name: "Command", value: `/${interaction.commandName}`, inline: false },
-        { name: "Channel", value: `<#${interaction.channel.id}>`, inline: false },
-        { name: "Time", value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
+        {
+          name: "User",
+          value: `<@${interaction.user.id}> (${interaction.user.tag})`,
+          inline: false,
+        },
+        {
+          name: "Command",
+          value: `/${interaction.commandName}`,
+          inline: false,
+        },
+        {
+          name: "Channel",
+          value: `<#${interaction.channel.id}>`,
+          inline: false,
+        },
+        {
+          name: "Time",
+          value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
+          inline: false,
+        }
       );
 
     try {
