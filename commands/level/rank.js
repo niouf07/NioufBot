@@ -70,7 +70,7 @@ module.exports = {
 
         interaction.reply({
           content: `**Server Leaderboard:**\n${classement}\n${userStats}`,
-          flags: 64,
+          // Remove flags: 64 to make the message public
         });
       }
     );
