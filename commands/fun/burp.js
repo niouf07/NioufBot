@@ -1,75 +1,38 @@
 const { SlashCommandBuilder } = require("discord.js");
 const {
   joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  AudioPlayerStatus,
   entersState,
   VoiceConnectionStatus,
 } = require("@discordjs/voice");
-const path = require("path");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("burp")
-    .setDescription("Plays a burp sound in your current voice channel"),
+    .setName("testvc")
+    .setDescription("Test VC join"),
   async execute(interaction) {
-    const user = interaction.member;
-    const voiceChannel = user.voice.channel;
-
-    if (!voiceChannel) {
-      return interaction.reply({
-        content: "You must be in a voice channel to use this command!",
-        flags: 64,
-      });
+    const channel = interaction.member.voice.channel;
+    if (!channel) {
+      return interaction.reply({ content: "Join a VC first!", flags: 64 });
     }
+    await interaction.deferReply({ flags: 64 }); // Acknowledge immediately
 
-    await interaction.deferReply({ flags: 64 });
-
-    let connection;
     try {
-      connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: voiceChannel.guild.id,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+      const connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
       });
-
-      await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
-
-      const filePath = path.join(__dirname, "..", "..", "sounds", "burp.mp3");
-      const resource = createAudioResource(filePath);
-      const player = createAudioPlayer();
-
-      connection.subscribe(player);
-
-      player.on(AudioPlayerStatus.Idle, () => {
-        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
-          connection.destroy();
-        }
+      await entersState(connection, VoiceConnectionStatus.Ready, 5_000);
+      await interaction.editReply({
+        content: "Joined VC! Leaving in 2 seconds...",
       });
-
-      player.on("error", (error) => {
-        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
-          connection.destroy();
-        }
-        interaction.editReply({ content: "An error occurred while playing the sound." });
-      });
-
-      player.play(resource);
-
-      await interaction.editReply({ content: "💨 *burp!*" });
 
       setTimeout(() => {
-        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
-          connection.destroy();
-        }
-      }, 30_000);
-    } catch (error) {
-      if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
         connection.destroy();
-      }
-      return interaction.editReply({
-        content: "Sorry, I couldn't join the voice channel or play the sound.",
+      }, 2000); // Leave after 2 seconds
+    } catch (error) {
+      await interaction.editReply({
+        content: "Failed to join VC: " + error,
       });
     }
   },
