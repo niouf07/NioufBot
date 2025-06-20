@@ -17,6 +17,11 @@ module.exports = {
       moderation: "Moderation",
     };
 
+    // Check if user can see moderation commands
+    const canSeeModeration =
+      interaction.member.permissions.has("ModerateMembers") ||
+      interaction.member.permissions.has("Administrator");
+
     for (const [, command] of interaction.client.commands) {
       let category = "Other";
       if (command.category) {
@@ -25,6 +30,8 @@ module.exports = {
           categoryMap[folder] ||
           folder.charAt(0).toUpperCase() + folder.slice(1);
       }
+      // Hide moderation commands if user doesn't have permission
+      if (category === "Moderation" && !canSeeModeration) continue;
       if (!categories[category]) categories[category] = [];
       categories[category].push(command);
     }
@@ -40,14 +47,33 @@ module.exports = {
 
     function buildEmbed(category) {
       const commands = categories[category];
-      return new EmbedBuilder()
-        .setTitle(`${category} Commands`)
+      const embed = new EmbedBuilder()
+        .setTitle(`📖 ${category} Commands`)
         .setColor(0x5865f2)
         .setDescription(
-          commands
-            .map((cmd) => `/${cmd.data.name} - ${cmd.data.description}`)
-            .join("\n") || "No commands."
-        );
+          `Here are the available **${category.toLowerCase()}** commands.`
+        )
+        .setFooter({ text: "Use the menu below to view other categories." })
+        .setTimestamp();
+
+      if (commands.length) {
+        for (const cmd of commands) {
+          embed.addFields({
+            name: `/${cmd.data.name}`,
+            value: cmd.data.description
+              ? `*${cmd.data.description}*`
+              : "No description.",
+            inline: false,
+          });
+        }
+      } else {
+        embed.addFields({
+          name: "No commands in this category.",
+          value: "\u200b",
+          inline: false,
+        });
+      }
+      return embed;
     }
 
     const selectMenu = new ActionRowBuilder().addComponents(
