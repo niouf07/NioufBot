@@ -3,8 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Replies with the ping of the bot")
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDescription("Replies with the ping of the bot"),
   async execute(interaction) {
     await interaction.reply("Pinging...");
     const sent = await interaction.fetchReply();

@@ -30,6 +30,9 @@ module.exports = {
       });
     }
 
+    // Defer reply to avoid interaction timeout
+    await interaction.deferReply({ flags: 64 });
+
     // Attempt to DM the user
     let dmSuccess = true;
     await user
@@ -60,6 +63,6 @@ module.exports = {
     if (!dmSuccess) {
       replyMsg += `\n⚠️ Could not send DM to the user.`;
     }
-    await interaction.reply({ content: replyMsg });
+    await interaction.editReply({ content: replyMsg });
   },
 };

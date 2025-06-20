@@ -6,6 +6,7 @@ const {
   TextInputStyle,
   ActionRowBuilder,
   InteractionType,
+  EmbedBuilder,
 } = require("discord.js");
 
 const userTicketReason = new Map();
@@ -26,7 +27,6 @@ module.exports = {
       return;
     }
 
-    // Handle ticket button
     if (interaction.isButton() && interaction.customId === "create_ticket") {
       const reason = userTicketReason.get(interaction.user.id);
       if (!reason) {
@@ -37,7 +37,6 @@ module.exports = {
         return;
       }
 
-      // Show modal for query
       const modal = new ModalBuilder()
         .setCustomId("ticket_query_modal")
         .setTitle("Describe your issue");
@@ -55,7 +54,6 @@ module.exports = {
       return;
     }
 
-    // Handle modal submit
     if (
       interaction.type === InteractionType.ModalSubmit &&
       interaction.customId === "ticket_query_modal"
@@ -102,9 +100,17 @@ module.exports = {
         ],
       });
 
-      await channel.send({
-        content: `<@${interaction.user.id}> opened a ticket.\n**Reason:** ${reason}\n**Query:** ${query}`,
-      });
+      const ticketEmbed = new EmbedBuilder()
+        .setTitle("New Ticket")
+        .setColor(0x5865f2)
+        .addFields(
+          { name: "User", value: `<@${interaction.user.id}>`, inline: false },
+          { name: "Reason", value: reason, inline: false },
+          { name: "Query", value: query, inline: false }
+        )
+        .setTimestamp();
+
+      await channel.send({ embeds: [ticketEmbed] });
 
       await interaction.editReply({
         content: `Your ticket has been created: <#${channel.id}>`,
