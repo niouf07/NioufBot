@@ -1,5 +1,9 @@
 const { Events, EmbedBuilder } = require("discord.js");
-const logChannel = "1385336386982510602";
+const fs = require("fs");
+const path = require("path");
+const configPath = path.join(__dirname, "../log-config.json"); // Correct path
+
+console.log("Loading log event handler...");
 
 module.exports = {
   name: Events.InteractionCreate,
@@ -7,8 +11,24 @@ module.exports = {
     if (!interaction.isChatInputCommand()) return;
     if (interaction.user.bot) return;
 
-    const channel = interaction.client.channels.cache.get(logChannel);
-    if (!channel) return;
+    // Load config
+    let config = {};
+    if (fs.existsSync(configPath)) {
+      config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+    const logChannel = config[interaction.guild?.id];
+    if (!logChannel) return;
+
+    // Fetch channel from cache or API
+    let channel = interaction.client.channels.cache.get(logChannel);
+    if (!channel) {
+      try {
+        channel = await interaction.client.channels.fetch(logChannel);
+      } catch {
+        console.error("Log channel not found or inaccessible:", logChannel);
+        return;
+      }
+    }
 
     const embed = new EmbedBuilder()
       .setTitle("Command Used")
