@@ -1,7 +1,7 @@
 const { Events, EmbedBuilder } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const configPath = path.join(__dirname, "../log-config.json"); // Correct path
+const configPath = path.join(__dirname, "../log-config.json");
 
 console.log("Loading log event handler...");
 
@@ -30,31 +30,57 @@ module.exports = {
       }
     }
 
+    const options = interaction.options?._hoistedOptions || [];
+    const optionDetails = options.length
+      ? options
+          .map(
+            (opt) =>
+              `• **${opt.name}:** \`${opt.value}\``
+          )
+          .join("\n")
+      : "• *(No options provided)*";
+
     const embed = new EmbedBuilder()
-      .setTitle("Command Used")
-      .setColor(0x5865f2)
+      .setTitle("📋 Command Log")
+      .setColor(0x6c3483)
+      .setDescription(
+        `A command was used in **${interaction.guild?.name || "DM"}**.`
+      )
+      .setThumbnail(interaction.user.displayAvatarURL())
       .addFields(
         {
-          name: "User",
-          value: `<@${interaction.user.id}> (${interaction.user.tag})`,
+          name: "👤 User",
+          value: `<@${interaction.user.id}> (\`${interaction.user.tag}\` | \`${interaction.user.id}\`)`,
           inline: false,
         },
         {
-          name: "Command",
-          value: `/${interaction.commandName}`,
-          inline: false,
+          name: "💬 Command",
+          value: `\`/${interaction.commandName}\``,
+          inline: true,
         },
         {
-          name: "Channel",
-          value: `<#${interaction.channel.id}>`,
-          inline: false,
+          name: "📺 Channel",
+          value: interaction.channel
+            ? `<#${interaction.channel.id}> (\`${interaction.channel.name}\`)`
+            : "DM",
+          inline: true,
         },
         {
-          name: "Time",
+          name: "🕒 Time",
           value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
           inline: false,
+        },
+        {
+          name: "🔧 Options",
+          value: optionDetails,
+          inline: false,
         }
-      );
+      )
+      .setFooter({
+        text: "Command Logger",
+        iconURL: interaction.client.user.displayAvatarURL(),
+      })
+      .setTimestamp();
 
     try {
       await channel.send({ embeds: [embed] });

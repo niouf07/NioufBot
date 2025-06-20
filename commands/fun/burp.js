@@ -20,55 +20,57 @@ module.exports = {
     if (!voiceChannel) {
       return interaction.reply({
         content: "You must be in a voice channel to use this command!",
-        ephemeral: true,
+        flags: 64,
       });
     }
 
-    await interaction.deferReply();
+    await interaction.deferReply({ flags: 64 });
 
-    const connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guild.id,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
-
-    const filePath = path.join(__dirname, "..", "..", "sounds", "burp.mp3");
-    const resource = createAudioResource(filePath);
-    const player = createAudioPlayer();
-
-    connection.subscribe(player);
-
-    connection.on("stateChange", (oldState, newState) => {
-      console.log(
-        `Voice connection state changed from ${oldState.status} to ${newState.status}`
-      );
-    });
-
+    let connection;
     try {
-      await entersState(connection, VoiceConnectionStatus.Ready, 5_000);
+      connection = joinVoiceChannel({
+        channelId: voiceChannel.id,
+        guildId: voiceChannel.guild.id,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+      });
+
+      await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
+
+      const filePath = path.join(__dirname, "..", "..", "sounds", "burp.mp3");
+      const resource = createAudioResource(filePath);
+      const player = createAudioPlayer();
+
+      connection.subscribe(player);
+
+      player.on(AudioPlayerStatus.Idle, () => {
+        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
+          connection.destroy();
+        }
+      });
+
+      player.on("error", (error) => {
+        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
+          connection.destroy();
+        }
+        interaction.editReply({ content: "An error occurred while playing the sound." });
+      });
+
       player.play(resource);
+
+      await interaction.editReply({ content: "💨 *burp!*" });
+
+      setTimeout(() => {
+        if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
+          connection.destroy();
+        }
+      }, 30_000);
     } catch (error) {
-      console.error("Voice connection error:", error);
-      connection.destroy();
+      if (connection && connection.state.status !== VoiceConnectionStatus.Destroyed) {
+        connection.destroy();
+      }
       return interaction.editReply({
-        content: "Failed to join voice channel!",
+        content: "Sorry, I couldn't join the voice channel or play the sound.",
       });
     }
-
-    player.on(AudioPlayerStatus.Idle, () => {
-      connection.destroy();
-    });
-
-    player.on("error", (error) => {
-      connection.destroy();
-    });
-
-    setTimeout(() => {
-      try {
-        connection.destroy();
-      } catch {}
-    }, 10000);
-
-    await interaction.editReply({ content: "💨 *burp!*" });
   },
 };

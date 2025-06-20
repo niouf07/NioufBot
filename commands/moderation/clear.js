@@ -9,8 +9,8 @@ module.exports = {
         .setName("amount")
         .setDescription("The number of messages to clear")
         .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+    ),
+  // .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
   async execute(interaction) {
     const amount = interaction.options.getInteger("amount");
 

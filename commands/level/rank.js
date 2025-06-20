@@ -67,13 +67,21 @@ module.exports = {
         }
 
         const embed = new EmbedBuilder()
-          .setTitle("🏆 Server Leaderboard")
-          .setColor(0x5865f2)
-          .setDescription(leaderboard || "No leaderboard data.")
+          .setTitle("🌟 Server Leaderboard")
+          .setColor(0x6c3483)
+          .setDescription(
+            leaderboard ||
+              "No leaderboard data yet. Be the first to earn XP! ✨"
+          )
+          .setThumbnail(interaction.client.user.displayAvatarURL())
           .addFields({
             name: userOption ? `${userOption.username}'s Stats` : "Your Stats",
             value: userStats,
             inline: false,
+          })
+          .setFooter({
+            text: "Keep chatting to level up!",
+            iconURL: interaction.client.user.displayAvatarURL(),
           })
           .setTimestamp();
 

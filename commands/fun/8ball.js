@@ -29,11 +29,20 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle("🎱 Magic 8-Ball")
+      .setColor(0x6c3483)
+      .setDescription("Ask your question and receive the wisdom of the 8-ball!")
+      .setThumbnail(
+        "https://cdn.discordapp.com/emojis/1228768366044684379.png"
+      ) // You can use any 8-ball image or your bot's avatar
       .addFields(
-        { name: "Question", value: question, inline: false },
-        { name: "Answer", value: randomResponse, inline: false }
+        { name: "Question", value: `*${question}*`, inline: false },
+        { name: "Answer", value: `**${randomResponse}**`, inline: false }
       )
-      .setColor(0x5865f2);
+      .setFooter({
+        text: "The 8-ball knows all...",
+        iconURL: interaction.client.user.displayAvatarURL(),
+      })
+      .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });
   },
