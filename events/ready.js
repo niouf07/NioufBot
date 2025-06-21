@@ -1,9 +1,12 @@
-const { Events } = require("discord.js");
+const { Events, ActivityType } = require("discord.js");
 
 module.exports = {
   name: Events.ClientReady,
   once: true,
-  execute(client) {
-    console.log(`Ready! Logged in as ${client.user.tag}`);
+  async execute(client) {
+    client.user.setActivity("https://discord.gg/EFmUytQczm", {
+      type: ActivityType.Watching,
+    });
+    console.log(`${client.user.tag} is online!`);
   },
 };
