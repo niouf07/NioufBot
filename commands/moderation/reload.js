@@ -10,8 +10,8 @@ module.exports = {
         .setName("command")
         .setDescription("The command to reload.")
         .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+    ),
+  // .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
   async execute(interaction) {
     const commandName = interaction.options
       .getString("command", true)
