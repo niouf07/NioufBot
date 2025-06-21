@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/niouf07/NioufBot#readme",
   "dependencies": {
-    "discord.js": "^14.19.3",
+    "@discordjs/voice": "^0.18.0",
+    "@distube/ytdl-core": "^4.16.12",
+    "discord.js": "^14.20.0",
     "mysql": "^2.18.1"
   }
 }

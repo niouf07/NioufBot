@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -41,19 +41,19 @@ module.exports = {
           });
         }
 
-        let classement = "";
+        let leaderboard = "";
         let userRank = null;
         results.forEach((row, i) => {
           const place = i + 1;
           const mention = `<@${row.userID}>`;
           if (place === 1) {
-            classement += `🥇 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
+            leaderboard += `🥇 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
           } else if (place === 2) {
-            classement += `🥈 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
+            leaderboard += `🥈 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
           } else if (place === 3) {
-            classement += `🥉 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
+            leaderboard += `🥉 ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
           } else if (place <= 10) {
-            classement += `**${place}.** ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
+            leaderboard += `**${place}.** ${mention} — Level **${row.level}** (${row.experience} XP)\n`;
           }
           if (row.userID === userID) userRank = place;
         });
@@ -61,14 +61,31 @@ module.exports = {
         const userRow = results.find((r) => r.userID === userID);
         let userStats = "";
         if (userRow) {
-          userStats = `Your rank: **${userRank}** / ${results.length}\nLevel: **${userRow.level}**\nXP: **${userRow.experience}**`;
+          userStats = `**Your rank:** ${userRank} / ${results.length}\n**Level:** ${userRow.level}\n**XP:** ${userRow.experience}`;
         } else {
           userStats = "You have no rank information available.";
         }
 
-        interaction.reply({
-          content: `**Server Leaderboard:**\n${classement}\n${userStats}`,
-        });
+        const embed = new EmbedBuilder()
+          .setTitle("🌟 Server Leaderboard")
+          .setColor(0x6c3483)
+          .setDescription(
+            leaderboard ||
+              "No leaderboard data yet. Be the first to earn XP! ✨"
+          )
+          .setThumbnail(interaction.client.user.displayAvatarURL())
+          .addFields({
+            name: userOption ? `${userOption.username}'s Stats` : "Your Stats",
+            value: userStats,
+            inline: false,
+          })
+          .setFooter({
+            text: "Keep chatting to level up!",
+            iconURL: interaction.client.user.displayAvatarURL(),
+          })
+          .setTimestamp();
+
+        interaction.reply({ embeds: [embed] });
       }
     );
   },
