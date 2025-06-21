@@ -40,41 +40,28 @@ module.exports = {
         // Give random XP between 10 and 20, then check for level up
         const xpGain = Math.floor(Math.random() * 11) + 10;
         db.query(
-          `UPDATE level SET experience = experience + ? WHERE userID = ? AND guildID = ?`,
-          [xpGain, userID, guildID],
-          (err) => {
-            if (err) {
-              console.error("Failed to update user experience:", err);
-            } else {
-              // Fetch the updated experience and level
+          `SELECT experience, level FROM level WHERE userID = ? AND guildID = ?`,
+          [userID, guildID],
+          (err2, results) => {
+            if (!err2 && results && results[0]) {
+              let experience = Number(results[0].experience) + xpGain;
+              let level = Number(results[0].level);
+              let leveledUp = false;
+              let nextLevelXp = 100 * level;
+              while (experience >= nextLevelXp) {
+                experience -= nextLevelXp;
+                level += 1;
+                leveledUp = true;
+                nextLevelXp = 100 * level;
+              }
               db.query(
-                `SELECT experience, level FROM level WHERE userID = ? AND guildID = ?`,
-                [userID, guildID],
-                (err2, results) => {
-                  if (!err2 && results && results[0]) {
-                    let experience = Number(results[0].experience);
-                    let level = Number(results[0].level);
-                    let leveledUp = false;
-                    let nextLevelXp = 100 * level;
-                    while (experience >= nextLevelXp) {
-                      experience -= nextLevelXp;
-                      level += 1;
-                      leveledUp = true;
-                      nextLevelXp = 100 * level;
-                    }
-                    if (leveledUp) {
-                      db.query(
-                        `UPDATE level SET level = ?, experience = ? WHERE userID = ? AND guildID = ?`,
-                        [level, experience, userID, guildID],
-                        (err3) => {
-                          if (!err3) {
-                            message.channel.send(
-                              `<@${userID}> leveled up to level ${level}! 🎉`
-                            );
-                          }
-                        }
-                      );
-                    }
+                `UPDATE level SET level = ?, experience = ? WHERE userID = ? AND guildID = ?`,
+                [level, experience, userID, guildID],
+                (err3) => {
+                  if (!err3 && leveledUp) {
+                    message.channel.send(
+                      `<@${userID}> leveled up to level ${level}! 🎉`
+                    );
                   }
                 }
               );
