@@ -3,8 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const configPath = path.join(__dirname, "../log-config.json");
 
-console.log("Loading log event handler...");
-
 module.exports = {
   name: Events.InteractionCreate,
   async execute(interaction) {
@@ -32,12 +30,7 @@ module.exports = {
 
     const options = interaction.options?._hoistedOptions || [];
     const optionDetails = options.length
-      ? options
-          .map(
-            (opt) =>
-              `• **${opt.name}:** \`${opt.value}\``
-          )
-          .join("\n")
+      ? options.map((opt) => `• **${opt.name}:** \`${opt.value}\``).join("\n")
       : "• *(No options provided)*";
 
     const embed = new EmbedBuilder()
